@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import API from "../api/axios";
+import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
@@ -8,24 +9,37 @@ export const AuthProvider = ({ children }) => {
     JSON.parse(localStorage.getItem("user")) || null
   );
 
-  const register = async (formData) => {
+const register = async (formData) => {
+  try {
     const { data } = await API.post("/auth/register", formData);
 
     localStorage.setItem("user", JSON.stringify(data));
     setUser(data);
-  };
 
-  const login = async (formData) => {
+    toast.success("Registered successfully");
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Registration failed");
+  }
+};
+
+const login = async (formData) => {
+  try {
     const { data } = await API.post("/auth/login", formData);
 
     localStorage.setItem("user", JSON.stringify(data));
     setUser(data);
-  };
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-  };
+    toast.success("Login successful");
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Login failed");
+  }
+};
+
+ const logout = () => {
+  localStorage.removeItem("user");
+  setUser(null);
+  toast.success("Logged out");
+};
 
   return (
     <AuthContext.Provider
